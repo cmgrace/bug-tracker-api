@@ -4,6 +4,9 @@ const morgan = require("morgan");
 const cors = require("cors");
 const helmet = require("helmet");
 const { NODE_ENV } = require("./config");
+const projectRouter = require("./projects/project-router");
+const userRouter = require("./users/user-router");
+const ticketRouter = require("./tickets/ticket-router");
 
 const app = express();
 
@@ -13,9 +16,9 @@ app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
 
-app.get("/", (req, res) => {
-  res.send("Hello, world!");
-});
+app.use("/api/projects", projectRouter);
+app.use("/api/users", userRouter);
+app.use("/api/tickets", ticketRouter);
 
 app.use(function errorHandler(error, req, res, next) {
   let response;
