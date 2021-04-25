@@ -1,4 +1,5 @@
 const express = require("express");
+const { createNewProject } = require("../projects/project-service");
 const TicketService = require("./ticket-service");
 const jsonParser = express.json();
 
@@ -14,7 +15,7 @@ async function checkTicketExists(req, res, next) {
     if (!ticket) {
       return res
         .status(404)
-        .json({ error: { message: "Gift does not exist" } });
+        .json({ error: { message: "Ticket does not exist" } });
     }
     req.ticket = ticket;
     next();
@@ -68,16 +69,51 @@ ticketRouter
   .route("/:ticket_id")
   .all(checkTicketExists)
   .patch(jsonParser, (req, res, next) => {
-    let { name, email, registered, role } = req.body;
+    let {
+      id,
+      name,
+      description,
+      status,
+      type,
+      target_end_date,
+      actutal_end_date,
+      create_on,
+      create_by,
+      modified_on,
+      modified_by,
+      visible,
+      assigned_to,
+      project_id,
+      priority,
+    } = req.body;
 
-    if (role.length === 0) {
-      return res.status(400).json({ error: { message: "Role is required" } });
+    if (
+      name.length === 0 ||
+      description.length === 0 ||
+      project_id === -1 ||
+      create_on.length === 0 ||
+      modified_on === 0
+    ) {
+      return res
+        .status(400)
+        .json({ error: { message: "Required column is missing" } });
     }
     const newTicket = {
+      id,
       name,
-      email,
-      registered,
-      role,
+      description,
+      status,
+      type,
+      target_end_date,
+      actutal_end_date,
+      create_on,
+      create_by,
+      modified_on,
+      modified_by,
+      visible,
+      assigned_to,
+      project_id,
+      priority,
     };
 
     return TicketService.editTicket(req.app.get("db"), newTicket, req.ticket.id)
