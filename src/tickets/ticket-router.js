@@ -38,20 +38,27 @@ ticketRouter
       name,
       description,
       status,
-      start_date,
+      assigned_to,
+      type,
+      project_id,
+      priority,
+
       target_end_date,
       actutal_end_date,
-      create_on,
       create_by,
-      modified_on,
       modified_by,
       visible,
     } = req.body;
+    const create_on = req.body.create_on.toString().slice(0, 28);
+    const modified_on = req.body.modified_on.toString().slice(0, 28);
     const newItemAdded = {
       name,
       description,
       status,
-      start_date,
+      assigned_to,
+      type,
+      project_id,
+      priority,
       target_end_date,
       actutal_end_date,
       create_on,
@@ -60,6 +67,11 @@ ticketRouter
       modified_by,
       visible,
     };
+    for (const [key, value] of Object.entries(newItemAdded))
+      if (value == null)
+        return res.status(400).json({
+          error: { message: `Missing '${key}' in request body` },
+        });
     TicketService.createNewTicket(req.app.get("db"), newItemAdded)
       .then((itemAdded) => res.status(201).json(itemAdded))
       .catch(next);
@@ -121,26 +133,11 @@ ticketRouter
         return res.status(200).json(newTicket);
       })
       .catch(next);
+  })
+  .delete((req, res, next) => {
+    TicketService.deleteItem(req.app.get("db"), req.params.ticket_id)
+      .then((items) => res.json(items))
+      .catch(next);
   });
-
-ticketRouter.route("/favorites/items").get((req, res, next) => {
-  TicketService.getAllRestaurantsInFavorites(req.app.get("db"))
-    .then((favorites) => res.json(favorites))
-    .catch(next);
-});
-
-ticketRouter.route("/favorites/items/:fav_id").delete((req, res, next) => {
-  TicketService.deleteItem(req.app.get("db"), req.params.fav_id)
-    .then((items) => res.json(items))
-    .catch(next);
-});
-
-ticketRouter.route("/dishes").get((req, res, next) => {
-  TicketService.getAllDishes(req.app.get("db"))
-    .then((restaurants) => {
-      res.json(restaurants);
-    })
-    .catch(next);
-});
 
 module.exports = ticketRouter;

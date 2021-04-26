@@ -3,12 +3,12 @@ CREATE TABLE projects (
     name TEXT NOT NULL,
     description TEXT NOT NULL,
     status TEXT,
-    start_date TIMESTAMP,
-    target_end_date TIMESTAMP,
-    actutal_end_date TIMESTAMP,
-    create_on TIMESTAMP DEFAULT now()::date NOT NULL,
+    start_date TIMESTAMPTZ,
+    target_end_date TIMESTAMPTZ,
+    actutal_end_date TIMESTAMPTZ,
+    create_on TIMESTAMPTZ DEFAULT now() NOT NULL,
     create_by TEXT,
-    modified_on TIMESTAMP DEFAULT now()::date NOT NULL,
+    modified_on TIMESTAMPTZ DEFAULT now() NOT NULL,
     modified_by TEXT,
     visible Boolean
 );

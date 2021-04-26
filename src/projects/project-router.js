@@ -40,12 +40,14 @@ projectRouter
       start_date,
       target_end_date,
       actutal_end_date,
-      create_on,
+      // create_on,
       create_by,
-      modified_on,
+      // modified_on,
       modified_by,
       visible,
     } = req.body;
+    const create_on = req.body.create_on.toString().slice(0, 28);
+    const modified_on = req.body.modified_on.toString().slice(0, 28);
     const newItemAdded = {
       name,
       description,
@@ -59,6 +61,12 @@ projectRouter
       modified_by,
       visible,
     };
+    for (const [key, value] of Object.entries(newItemAdded))
+      if (value == null)
+        return res.status(400).json({
+          error: { message: `Missing '${key}' in request body` },
+        });
+
     ProjectService.createNewProject(req.app.get("db"), newItemAdded)
       .then((itemAdded) => res.status(201).json(itemAdded))
       .catch(next);
@@ -89,26 +97,11 @@ projectRouter
         return res.status(200).json(newProject);
       })
       .catch(next);
+  })
+  .delete((req, res, next) => {
+    ProjectService.deleteItem(req.app.get("db"), req.params.project_id)
+      .then((items) => res.json(items))
+      .catch(next);
   });
-
-projectRouter.route("/favorites/items").get((req, res, next) => {
-  ProjectService.getAllRestaurantsInFavorites(req.app.get("db"))
-    .then((favorites) => res.json(favorites))
-    .catch(next);
-});
-
-projectRouter.route("/favorites/items/:fav_id").delete((req, res, next) => {
-  ProjectService.deleteItem(req.app.get("db"), req.params.fav_id)
-    .then((items) => res.json(items))
-    .catch(next);
-});
-
-projectRouter.route("/dishes").get((req, res, next) => {
-  ProjectService.getAllDishes(req.app.get("db"))
-    .then((restaurants) => {
-      res.json(restaurants);
-    })
-    .catch(next);
-});
 
 module.exports = projectRouter;
